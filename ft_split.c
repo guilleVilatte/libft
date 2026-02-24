@@ -1,90 +1,102 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ft_split.c                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: gvilatte <gvilatte@student.42barcel>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/09/25 12:43:30 by gvilatte          #+#    #+#             */
-/*   Updated: 2022/09/26 17:07:26 by gvilatte         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+#include <stdlib.h>
 
-#include "libft.h"
-
-static size_t	lookingc(char const *s, char c)
+static size_t	count_words(const char *s, char sep)
 {
+	size_t	count;
 	size_t	i;
-	size_t	j;
 
+	count = 0;
 	i = 0;
-	j = 0;
 	while (s[i])
 	{
-		if (c == s[i])
-			i++;
-		else
+		if (s[i] != sep)
 		{
-			j++;
-			while (s[i] && s[i] != c)
+			count++;
+			while (s[i] && s[i] != sep)
 				i++;
 		}
+		else
+			i++;
 	}
-	return (j);
+	return (count);
 }
 
-static void	forfree(char **str, size_t i)
+static char	*word_dup(const char *s, size_t start, size_t end)
 {
-	size_t	k;
+	char	*word;
+	size_t	len;
+	size_t	i;
 
-	k = 0;
-	while (k < i)
+	len = end - start;
+	word = malloc(len + 1);
+	if (!word)
+		return (NULL);
+	i = 0;
+	while (i < len)
 	{
-		free(str[k]);
-		k++;
+		word[i] = s[start + i];
+		i++;
 	}
-	free(str);
+	word[i] = '\0';
+	return (word);
 }
 
-static char	**makewords(char **str, char const *s, char c, size_t k)
+static void	free_all(char **array, size_t filled)
 {
-	size_t	start;
 	size_t	i;
 
 	i = 0;
-	while (i < lookingc(s, c))
+	while (i < filled)
 	{
-		if (c == s[k])
-			k++;
-		else
-		{
-			start = k;
-			while (s[k] && s[k] != c)
-				k++;
-			str[i] = ft_substr(s, start, (k - start));
-			if (!str[i])
-			{
-				forfree(str, i);
-				return (NULL);
-			}
-			i++;
-		}
+		free(array[i]);
+		i++;
 	}
-	str[i] = 0;
-	return (str);
+	free(array);
 }
 
-char	**ft_split(char const *s, char c)
+char	**ft_split(const char *s, char sep)
 {
-	size_t	k;
-	char	**str;
+	char	**result;
+	size_t	word_count;
+	size_t	i;
+	size_t	start;
+	size_t	index;
 
-	str = (char **) malloc ((lookingc(s, c) + 1) * sizeof(char *));
-	if (!str)
+	if (!s)
 		return (NULL);
-	k = 0;
-	str = makewords(str, s, c, k);
-	if (!str)
+
+	word_count = count_words(s, sep);
+	result = malloc((word_count + 1) * sizeof(char *));
+	if (!result)
 		return (NULL);
-	return (str);
+
+	i = 0;
+	index = 0;
+	while (s[i])
+	{
+		if (s[i] != sep)
+		{
+			start = i;
+			while (s[i] && s[i] != sep)
+				i++;
+			result[index] = word_dup(s, start, i);
+			if (!result[index])
+			{
+				free_all(result, index);
+				return (NULL);
+			}
+			index++;
+		}
+		else
+			i++;
+	}
+	result[index] = NULL;
+	return (result);
+}
+
+int main(void)
+{
+    printf("%s\n", ft_split("append an additional SUFFIX to file names", ' ')[1]);
+    printf("%s\n", ft_split("append an additional SUFFIX to file names", 'p')[1]);
+    return (0);
 }
