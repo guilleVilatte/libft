@@ -21,20 +21,8 @@ void	*ft_memset(void *b, int c, size_t len)
 	i = 0;
 	while (i < len)
 	{
-		a[i] = c;
+		a[i] = (unsigned char)c;
 		i++;
 	}
 	return (b);
 }
-
-/*int main()
-{
-	char b[20] = "guillermo";
-
-	//b = "guillermo";
-	printf("%s\n", b);
-//	printf("%s\n", memset(b + 3, 49, 1));
-	printf("%s\n", ft_memset(b + 3, 49, 1));
-	printf("%s\n", b);
-	return (0);
-}*/
